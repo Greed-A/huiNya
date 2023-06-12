@@ -1,0 +1,91 @@
+using System;
+
+namespace ShapeLibrary
+{
+    public interface IShape
+    {
+        double CalculateArea();
+    }
+
+    public class Circle : IShape
+    {
+        private double radius;
+
+        public Circle(double radius)
+        {
+            this.radius = radius;
+        }
+
+        public double CalculateArea()
+        {
+            return Math.PI * radius * radius;
+        }
+    }
+
+    public class Triangle : IShape
+    {
+        private double side1;
+        private double side2;
+        private double side3;
+
+        public Triangle(double side1, double side2, double side3)
+        {
+            this.side1 = side1;
+            this.side2 = side2;
+            this.side3 = side3;
+        }
+
+        public double CalculateArea()
+        {
+            // Используем формулу Герона для вычисления площади треугольника
+            double s = (side1 + side2 + side3) / 2;
+            return Math.Sqrt(s * (s - side1) * (s - side2) * (s - side3));
+        }
+
+        public bool IsRightTriangle()
+        {
+            // Проверяем, является ли треугольник прямоугольным по теореме Пифагора
+            double a2 = side1 * side1;
+            double b2 = side2 * side2;
+            double c2 = side3 * side3;
+
+            return a2 + b2 == c2 || a2 + c2 == b2 || b2 + c2 == a2;
+        }
+    }
+
+    // Дополнительные фигуры могут быть добавлены аналогичным образом
+
+    public class ShapeCalculator
+    {
+        public static double CalculateArea(IShape shape)
+        {
+            return shape.CalculateArea();
+        }
+    }
+
+    public static class Program
+    {
+        public static void Main()
+        {
+            // Пример использования библиотеки
+
+            // Вычисление площади круга
+            double circleRadius = 5;
+            Circle circle = new Circle(circleRadius);
+            double circleArea = ShapeCalculator.CalculateArea(circle);
+            Console.WriteLine($"Площадь круга с радиусом {circleRadius}: {circleArea}");
+
+            // Вычисление площади треугольника
+            double side1 = 3;
+            double side2 = 4;
+            double side3 = 5;
+            Triangle triangle = new Triangle(side1, side2, side3);
+            double triangleArea = ShapeCalculator.CalculateArea(triangle);
+            Console.WriteLine($"Площадь треугольника со сторонами {side1}, {side2} и {side3}: {triangleArea}");
+
+            // Проверка, является ли треугольник прямоугольным
+            bool isRightTriangle = triangle.IsRightTriangle();
+            Console.WriteLine($"Треугольник со сторонами {side1}, {side2} и {side3} является прямоугольным: {isRightTriangle}");
+        }
+    }
+}
