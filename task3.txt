@@ -1,4 +1,29 @@
-SELECT P.ProductName, C.CategoryName
-FROM Products P
-LEFT JOIN ProductCategories PC ON P.ProductID = PC.ProductID
-LEFT JOIN Categories C ON PC.CategoryID = C.CategoryID;
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
+
+# Инициализация SparkSession
+spark = SparkSession.builder.appName("product_category_join").getOrCreate()
+
+# Создание датафрейма с продуктами
+products_data = [("product1",), ("product2",), ("product3",)]
+products_df = spark.createDataFrame(products_data, ["product"])
+
+# Создание датафрейма с категориями
+categories_data = [("category1",), ("category2",), ("category3",)]
+categories_df = spark.createDataFrame(categories_data, ["category"])
+
+# Создание датафрейма с пустыми категориями для продуктов, у которых нет категорий
+empty_categories_df = products_df.crossJoin(categories_df)\
+    .select(products_df["product"], categories_df["category"])\
+    .filter(categories_df["category"].isNotNull())
+
+# Создание датафрейма с парами "Имя продукта – Имя категории"
+product_category_pairs = products_df.crossJoin(categories_df)\
+    .select(products_df["product"], categories_df["category"])
+
+# Объединение с пустыми категориями
+result_df = product_category_pairs.union(empty_categories_df)\
+    .distinct()
+
+# Отображение результата
+result_df.show()
